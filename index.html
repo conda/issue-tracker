@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VS Code Issue Tracker</title>
+    <link rel="stylesheet" href="vendors/c3/c3.min.css">
+    <link rel="stylesheet" href="style.css">
+    <meta name="Description" content="Hourly tracker of number of issues on Microsoft/vscode">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="lannonbr">
+    <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Visual_Studio_Code_1.18_icon.svg/512px-Visual_Studio_Code_1.18_icon.svg.png">
+    <meta name="twitter:description" content="Hourly tracker of number of issues on Microsoft/vscode">
+    <meta name="twitter:title" content="VS Code Issue Tracker">
+</head>
+
+<body>
+    <h1>VS Code Issue Tracker</h1>
+    <p>
+        This is a timeline of how many open issues VS Code has on Github over time.
+    </p>
+    <p id="diff"></p>
+    <h2>Recent Overview</h2>
+    <div id="hourChart"></div>
+    <h2>Month Overview</h2>
+    <div id="tenDayChart"></div>
+    <p id="totalDiff"></p>
+    <footer>&copy; 2018 <a href="https://twitter.com/lannonbr/">Benjamin Lannon</a> | <a href="https://github.com/lannonbr/vscode-issue-tracker">View Source on
+            Github</a> | <a href="https://vscode.rocks/vscode-issue-tracker/">How I made this</a></footer>
+
+    <script src="vendors/d3/d3.min.js"></script>
+    <script src="vendors/c3/c3.min.js"></script>
+    <script src="vendors/moment.min.js"></script>
+    <script src="data.js"></script>
+    <script src="main.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118790131-3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-118790131-3');
+    </script>
+
+</body>
+
+</html>
