@@ -4,47 +4,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>VS Code Issue Tracker</title>
-    <link rel="stylesheet" href="vendors/c3/c3.min.css">
+    <title>Conda Issue Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" integrity="sha512-GQGU0fMMi238uA+a/bdWJfpUGKUkBdgfFdgBm72SUQ6BeyWjoY/ton0tEjH+OSH9iP4Dfh+7HM0I9f5eR0L/4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css" integrity="sha512-cznfNokevSG7QPA5dZepud8taylLdvgr0lDqw/FEZIhluFsSwyvS81CMnRdrNSKwbsmc43LtRd2/WMQV+Z85AQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style.css">
-    <meta name="Description" content="Hourly tracker of number of issues on Microsoft/vscode">
+
+    <meta name="Description" content="Hourly tracker of number of conda and friends issues">
+
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:creator" content="lannonbr">
-    <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Visual_Studio_Code_1.18_icon.svg/512px-Visual_Studio_Code_1.18_icon.svg.png">
-    <meta name="twitter:description" content="Hourly tracker of number of issues on Microsoft/vscode">
-    <meta name="twitter:title" content="VS Code Issue Tracker">
+    <meta name="twitter:creator" content="kenodegard">
+    <!-- <meta name="twitter:image" content=""> -->
+    <meta name="twitter:description" content="Hourly tracker of number of conda and friends issues">
+    <meta name="twitter:title" content="Conda Issue Tracker">
+
+    <link rel="shortcut icon" href="https://docs.conda.io/en/latest/_static/conda-logo.png">
 </head>
 
-<body>
-    <h1>VS Code Issue Tracker</h1>
-    <p>
-        This is a timeline of how many open issues VS Code has on Github over time.
-    </p>
-    <p id="diff"></p>
-    <h2>Recent Overview</h2>
-    <div id="hourChart"></div>
-    <h2>Month Overview</h2>
-    <div id="tenDayChart"></div>
-    <p id="totalDiff"></p>
-    <footer>&copy; 2018 <a href="https://twitter.com/lannonbr/">Benjamin Lannon</a> | <a href="https://github.com/lannonbr/vscode-issue-tracker">View Source on
-            Github</a> | <a href="https://vscode.rocks/vscode-issue-tracker/">How I made this</a></footer>
+<body class="d-flex flex-column text-center">
+    <!-- GitHub Corner: https://github.com/tholman/github-corners -->
+    <a href="https://github.com/kenodegard/conda-issue-tracker" class="github-corner" aria-label="View source on GitHub">
+        <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+        </svg>
+    </a>
 
-    <script src="vendors/d3/d3.min.js"></script>
-    <script src="vendors/c3/c3.min.js"></script>
-    <script src="vendors/moment.min.js"></script>
-    <script src="data.js"></script>
-    <script src="main.js"></script>
+    <!-- Bootstrap Icons: https://icons.getbootstrap.com -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="arrow-up-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 0 0 8a8 8 0 0 0 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
+        </symbol>
+        <symbol id="arrow-down-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+        </symbol>
+        <symbol id="github" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </symbol>
+        <symbol id="graph-up" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+        </symbol>
+    </svg>
+
+    <!-- Content -->
+    <div class="container-xxl flex-grow-1">
+        <h1>Conda Issue Tracker</h1>
+
+        <div class="border rounded p-2 mb-3 row align-items-center">
+            <div class="col-3">
+                <label for="repoSelection" class="d-inline-block">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#graph-up"/></svg>
+                    Display:
+                </label>
+                <select id="repoSelection" name="repoSelection" class="form-select w-auto d-inline-block">
+                    <option value="">Cumulative</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <div id="diff" class="alert d-inline-flex align-items-center mb-0 w-auto" role="alert"></div>
+            </div>
+            <div class="col-3">
+                <a id="repoLink" class="btn btn-outline-dark disabled" href="">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#github"/></svg>
+                    View repo on GitHub
+                </a>
+            </div>
+        </div>
+
+        <div class="border rounded p-2 mb-3 row">
+            <h2>Recent Overview</h2>
+            <div><!-- C3 struggles with correct size rendering without this -->
+                <div id="hourChart"></div>
+            </div>
+        </div>
+
+        <div class="border rounded p-2 mb-3 row">
+            <h2>Month Overview</h2>
+            <div><!-- C3 struggles with correct size rendering without this -->
+                <div id="monthChart"></div>
+            </div>
+        </div>
+
+        <!-- <p id="totalDiff"></p> -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-5 bg-light">
+        <div class="container-xxl">
+            &copy; 2021 <a href="https://twitter.com/anacondainc">Anaconda, Inc.</a>
+            | <a href="https://github.com/kenodegard/conda-issue-tracker">View Source on GitHub</a>
+            | Inspired by <a href="https://vscode-issue-tracker.netlify.app">VSCode Issue Tracker by Benjamin Lannon</a>
+        </div>
+    </footer>
+
+    <!-- Backend -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.min.js" integrity="sha512-OvBgP9A2JBgiRad/mM36mkzXSXaJE9BEIENnVEmeZdITvwT09xnxLtT4twkCa8m/loMbPHsvPl0T8lRGVBwjlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js" integrity="sha512-FHsFVKQ/T1KWJDGSbrUhTJyS1ph3eRrxI228ND0EGaEp6v4a/vGwPWd3Dtd/+9cI7ccofZvl/wulICEurHN1pg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js" integrity="sha512-+IpCthlNahOuERYUSnKFjzjdKXIbJ/7Dd6xvUp+7bEw0Jp2dg6tluyxLs+zq9BMzZgrLv8886T4cBSqnKiVgUw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="module" src="snapshots.js"></script>
+    <script type="module" src="repos.js"></script>
+    <script type="module" src="main.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118790131-3"></script>
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118790131-3"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
 
+        gtag('js', new Date());
         gtag('config', 'UA-118790131-3');
-    </script>
+    </script> -->
 
 </body>
 

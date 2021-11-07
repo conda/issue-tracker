@@ -1,23 +1,28 @@
 {
-  "name": "vscode-issue-tracker",
+  "name": "conda-issue-tracker",
   "version": "1.0.0",
-  "description": "A simple website to present how many issues are open over time for [microsoft/vscode](https://github.com/microsoft/vscode). I Wanted to visualize the progress on [microsoft/vscode#58336](https://github.com/Microsoft/vscode/issues/58336) so I used the Github API to graph open issues over time for VS Code",
+  "description": "A simple website to display the number of issues open over time for [conda and friends](https://github.com/conda). Inspired by work done for the [VSCode Issue Tracker](https://github.com/lannonbr/vscode-issue-tracker).",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "query": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lannonbr/vscode-issue-tracker.git"
+    "url": "git+https://github.com/kenodegard/conda-issue-tracker.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "kenodegard",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lannonbr/vscode-issue-tracker/issues"
+    "url": "https://github.com/kenodegard/conda-issue-tracker/issues"
   },
-  "homepage": "https://github.com/lannonbr/vscode-issue-tracker#readme",
+  "homepage": "https://github.com/kenodegard/conda-issue-tracker#readme",
+  "type": "module",
   "dependencies": {
-    "firebase-admin": "^9.2.0"
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "http-server": "^14.0.0",
+    "moment": "^2.28.0",
+    "node-fetch": "^2.6.1"
   }
 }

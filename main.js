@@ -1,245 +1,185 @@
-let entries72 = window.vsIssueTrackerDataPoints.slice(0, 72);
-let entries720 = window.vsIssueTrackerDataPoints;
+import {repos} from "./repos.js";
+import {snapshots} from "./snapshots.js";
 
-let timesArr = [];
-let openIssueArr = [];
+// populate select
+$(repos).each(function() {
+    var option = $("<option/>");
 
-const nowEntry = entries72[0];
-const dayAgoEntry = entries72[23];
+    option.html(this.split("/")[1]);
+    option.val(this);
 
-const threeDaysAgoUnix = moment
-  .unix(nowEntry.timestamp)
-  .subtract(3, "days")
-  .unix();
-
-entries72 = entries72
-  .reverse()
-  .filter(entry => entry.timestamp > threeDaysAgoUnix);
-
-let now = moment.unix(entries72[0].timestamp);
-let nextDayOne = now
-  .add(1, "day")
-  .startOf("day")
-  .unix();
-let nextDayTwo = now
-  .add(1, "days")
-  .startOf("day")
-  .unix();
-let nextDayThree = now
-  .add(1, "days")
-  .startOf("day")
-  .unix();
-let nextDayFour = now
-  .add(1, "days")
-  .startOf("day")
-  .unix();
-
-const gridLines = [
-  {
-    value: nextDayOne,
-    text: moment.unix(nextDayOne).format("ddd, MMMM Do")
-    // position: "end"
-  },
-  {
-    value: nextDayTwo,
-    text: moment.unix(nextDayTwo).format("ddd, MMMM Do")
-    // position: "end"
-  },
-  {
-    value: nextDayThree,
-    text: moment.unix(nextDayThree).format("ddd, MMMM Do")
-    // position: "end"
-  },
-  {
-    value: nextDayFour,
-    text: moment.unix(nextDayFour).format("ddd, MMMM Do")
-    // position: "end"
-  }
-];
-
-for (let entry of entries72) {
-  const { timestamp, openIssues } = entry;
-
-  timesArr.push(timestamp);
-  openIssueArr.push(openIssues);
-}
-
-var chart = c3.generate({
-  bindto: "#hourChart",
-  data: {
-    x: "x",
-    columns: [["x", ...timesArr], ["open issues", ...openIssueArr]]
-  },
-  subchart: {
-    show: true
-  },
-  axis: {
-    y: {
-      tick: {
-        format: function(x) {
-          return x === Math.floor(x) ? x : "";
-        }
-      }
-    },
-    x: {
-      tick: {
-        format: function(d) {
-          return moment.unix(d).format("llll");
-        }
-      }
-    }
-  },
-  tooltip: {
-    format: {
-      title: function(d) {
-        return moment.unix(d).format("llll");
-      }
-    }
-  },
-  padding: {
-    right: 100,
-    left: 100
-  },
-  size: {
-    height: 400
-  },
-  grid: {
-    x: {
-      lines: gridLines
-    }
-  }
+    $("#repoSelection").append(option);
 });
 
-fillDiffs(nowEntry, dayAgoEntry);
+// select event
+$("#repoSelection").on("change", function() { setRepo(this.value); });
 
-timesArr = [];
-openIssueArr = [];
-
-const firstTimestamp = entries720[entries720.length - 1].timestamp;
-const lastTimestamp = entries720[0].timestamp;
-
-const gridlines = getGridLines(firstTimestamp, lastTimestamp);
-
-const monthAgoUnix = moment
-  .unix(lastTimestamp)
-  .subtract(1, "month")
-  .unix();
-
-entries720 = entries720
-  .reverse()
-  .filter(entry => entry.timestamp > monthAgoUnix)
-  .filter((_, idx) => idx % 4 === 0);
-
-for (let entry of entries720) {
-  const { timestamp, openIssues } = entry;
-
-  timesArr.push(timestamp);
-  openIssueArr.push(openIssues);
-}
-
-var chart = c3.generate({
-  bindto: "#tenDayChart",
-  data: {
-    x: "x",
-    columns: [["x", ...timesArr], ["open issues", ...openIssueArr]]
-  },
-  subchart: {
-    show: true
-  },
-  axis: {
-    y: {
-      tick: {
-        format: function(x) {
-          return x === Math.floor(x) ? x : "";
-        }
-      }
-    },
-    x: {
-      tick: {
-        format: function(d) {
-          return moment.unix(d).format("llll");
-        }
-      }
-    }
-  },
-  tooltip: {
-    format: {
-      title: function(d) {
-        return moment.unix(d).format("llll");
-      }
-    }
-  },
-  padding: {
-    right: 100,
-    left: 100
-  },
-  size: {
-    height: 400
-  },
-  grid: {
-    x: {
-      lines: gridlines
-    }
-  }
+// initialize repoLink & charts (on load)
+$(document).ready(function() {
+    setRepo($("#repoSelection").val());
 });
 
-function fillDiffs(nowEntry, dayAgoEntry) {
-  let diff = nowEntry.openIssues - dayAgoEntry.openIssues;
-  let colorClass;
-  let symbol;
+function setRepo(path) {
+    // set repoLink
+    setRepoLink(path);
 
-  if (diff > 0) {
-    colorClass = "red";
-    symbol = "▲";
-  } else {
-    colorClass = "green";
-    symbol = "▼";
-  }
+    // update diff
+    console.log(snapshots);
+    setDiff(path, snapshots[0], snapshots[23]);
 
-  diff = Math.abs(diff);
+    // update charts
+    const threeDaysAgoUnix = moment
+        .unix(snapshots[0].timestamp)
+        .subtract(3, "days")
+        .unix();
+    generateChart(
+        "#hourChart",
+        path,
+        snapshots
+            .slice(-72, -1)
+            .filter(snapshot => snapshot.timestamp > threeDaysAgoUnix)
+    );
+    const monthAgoUnix = moment
+        .unix(snapshots[0].timestamp)
+        .subtract(1, "month")
+        .unix();
+    generateChart(
+        "#monthChart",
+        path,
+        snapshots
+            .slice(-720, -1)
+            .filter(snapshot => snapshot.timestamp > monthAgoUnix)
+            .filter((_, idx) => idx % 4 === 0)
+    );
+}
 
-  const diffElement = document.getElementById("diff");
+function countOpen(path, snapshot) {
+    let open = 0;
+    for (let repo of (path ? [path] : repos)) {
+        open += snapshot[repo]["open"];
+    }
+    return open;
+}
 
-  diffElement.className = "color-" + colorClass;
+function generateChart(bindto, path, snapshots) {
+    // unpack array
+    let timestamps = [];
+    let openIssues = [];
 
-  diffElement.innerText = `${symbol} ${diff} ${
-    colorClass === "red" ? "more" : "less"
-  } issues compared to a day ago (${dayAgoEntry.openIssues} to ${
-    nowEntry.openIssues
-  })`;
+    for (let snapshot of snapshots) {
+        timestamps.push(snapshot["timestamp"]);
+        openIssues.push(countOpen(path, snapshot));
+    }
 
-  const totalDiffElement = document.getElementById("totalDiff");
+    console.log(timestamps);
+    console.log(openIssues);
 
-  totalDiffElement.innerHTML = `
-    On Sept 10, 2018 at 8:41PM EST, there were 49,181 closed issues. Now there
-    are ${nowEntry.closedIssues.toLocaleString()} closed issues, for a total difference of
-    <b>${(
-      nowEntry.closedIssues - 49181
-    ).toLocaleString()} issues</b> that have been closed since I started tracking this.
-  `;
+    // generate C3 chart
+    c3.generate({
+        bindto: bindto,
+        data: {
+            x: "x",
+            columns: [["x", ...timestamps], ["open issues", ...openIssues]]
+        },
+        axis: {
+            y: {
+                tick: {
+                    format: function(x) {
+                        return x === Math.floor(x) ? x : "";
+                    }
+                }
+            },
+            x: {
+                tick: {
+                    format: function(d) {
+                        return moment.unix(d).format("llll");
+                    }
+                }
+            }
+        },
+        grid: {
+            x: {
+                lines: getGridLines(timestamps[0], timestamps[timestamps.length - 1])
+            }
+        },
+        tooltip: {
+            format: {
+                title: function(d) {
+                    return moment.unix(d).format("llll");
+                }
+            }
+        },
+        subchart: { show: true },
+        size: { height: 400 }
+    });
+}
+
+function setDiff(path, currentSnapshot, dayAgoSnapshot) {
+    const states = {
+        "true": {
+            "color": "alert-danger",
+            "icon": "#arrow-up-circle-fill",
+            "adjective": "more"
+        },
+        "false": {
+            "color": "alert-success",
+            "icon": "#arrow-down-circle-fill",
+            "adjective": "fewer"
+        }
+    };
+
+    console.log(path);
+    console.log(currentSnapshot);
+    console.log(dayAgoSnapshot);
+    let diff = countOpen(path, currentSnapshot) - countOpen(path, dayAgoSnapshot);
+    let state = states[diff > 0];
+
+    $("#diff").addClass(state["color"]);
+    $("#diff").html(`
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="${state["icon"]}"/></svg>
+        <div>
+            ${Math.abs(diff)} ${state["adjective"]} issues compared to a day ago
+            (${dayAgoSnapshot.openIssues} to ${currentSnapshot.openIssues})
+        </div>
+    `);
 }
 
 function getGridLines(firstTimestamp, lastTimestamp) {
-  const gridlines = [];
+    const gridlines = [];
 
-  let firstDay = moment
-    .unix(firstTimestamp)
-    .add(1, "days")
-    .startOf("day");
-  let lastDay = moment.unix(lastTimestamp).startOf("day");
+    let firstDay = moment
+        .unix(firstTimestamp)
+        .add(1, "days")
+        .startOf("day");
+    let numOfDays = moment
+        .unix(lastTimestamp)
+        .startOf("day")
+        .diff(firstDay, "days");
+    for (let i = 0; i < numOfDays + 1; i++) {
+        gridlines.push({
+            value: firstDay.unix(),
+            text: firstDay.format("ddd, MMMM Do")
+        });
 
-  let numOfDays = lastDay.diff(firstDay, "days");
+        firstDay = firstDay
+            .add(1, "day")
+            .startOf("day");
+    }
 
-  for (let i = 0; i < numOfDays + 1; i++) {
-    gridlines.push({
-      value: firstDay.unix(),
-      text: firstDay.format("ddd, MMMM Do")
-    });
+    return gridlines;
+}
 
-    firstDay = firstDay.add(1, "day").startOf("day");
-  }
-
-  console.log(gridlines);
-
-  return gridlines;
+function setRepoLink(path) {
+    if (path) {
+        $("#repoLink").attr("href", "https://github.com/" + path);
+        $("#repoLink").addClass("btn-dark");
+        $("#repoLink").removeAttr("aria-disabled");
+        $("#repoLink").removeAttr("tabindex");
+        $("#repoLink").removeClass("disabled btn-outline-dark");
+    } else {
+        $("#repoLink").addClass("disabled btn-outline-dark");
+        $("#repoLink").attr("aria-disabled", "true");
+        $("#repoLink").attr("tabindex", "-1");
+        $("#repoLink").removeClass("btn-dark");
+    }
 }
