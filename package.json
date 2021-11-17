@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kenodegard/conda-issue-tracker.git"
+    "url": "git+https://github.com/conda/issue-tracker.git"
   },
   "keywords": [],
   "author": "kenodegard",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kenodegard/conda-issue-tracker/issues"
+    "url": "https://github.com/conda/issue-tracker/issues"
   },
-  "homepage": "https://github.com/kenodegard/conda-issue-tracker#readme",
+  "homepage": "https://github.com/conda/issue-tracker#readme",
   "type": "module",
   "dependencies": {
     "@actions/core": "^1.6.0",
