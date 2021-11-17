@@ -1,0 +1,24 @@
+name: Recent
+on:
+  schedule:
+    # on the hour, every hour
+    # https://crontab.guru/#0_*_*_*_*
+    - cron: 0 * * * *
+jobs:
+  recent:
+    runs-on: ubuntu-latest
+    steps:
+      # setup
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm install node-fetch moment
+      # run query
+      - run: node snapshots.js recent 72
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # commit changes
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Hourly snapshot

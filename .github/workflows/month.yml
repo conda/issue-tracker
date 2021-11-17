@@ -1,0 +1,24 @@
+name: Month
+on:
+  schedule:
+    # 5 past the hour, every 3 hours
+    # https://crontab.guru/#5_*/3_*_*_*
+    - cron: 5 */3 * * *
+jobs:
+  month:
+    runs-on: ubuntu-latest
+    steps:
+      # setup
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm install node-fetch moment
+      # run query
+      - run: node snapshots.js month 248
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # commit changes
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Every 3 hours snapshot

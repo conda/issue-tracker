@@ -1,0 +1,24 @@
+name: Alltime
+on:
+  schedule:
+    # 15 past the hour, every 3 days
+    # https://crontab.guru/#15_*_*/3_*_*
+    - cron: 15 * */3 * *
+jobs:
+  alltime:
+    runs-on: ubuntu-latest
+    steps:
+      # setup
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm install node-fetch moment
+      # run query
+      - run: node snapshots.js alltime 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # commit changes
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Every 3 days snapshot

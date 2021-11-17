@@ -1,0 +1,24 @@
+name: Year
+on:
+  schedule:
+    # 10 past the hour, every 24 hours
+    # https://crontab.guru/#10_0_*_*_*
+    - cron: 10 0 * * *
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    steps:
+      # setup
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - run: npm install node-fetch moment
+      # run query
+      - run: node snapshots.js year 366
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # commit changes
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Every 24 hours snapshot
