@@ -276,7 +276,9 @@ class History:
 
                     snapshots.setdefault(repo, []).append(open_)
 
-                snapshots.setdefault("timestamp", []).append(current.timestamp() * 1000)
+                snapshots.setdefault("timestamp", []).append(
+                    int(current.timestamp() * 1000)
+                )
 
                 # increment
                 current -= timedelta(hours=rate)
@@ -288,19 +290,22 @@ class History:
         return snapshots
 
     def write_repos(self):
+        # get repos, convert to JSON
+        data = json.dumps(self.repos, separators=(",", ":"))
+
         # write out
         file = Path("snapshots/repos.js")
         with file.open("w") as fh:
-            fh.write(f"export const repos = {json.dumps(self.repos)};")
+            fh.write(f"export const repos = {data};\n")
 
     def write_snapshots(self, out, rate, trim=None):
-        # generate data object
-        data = self.get_snapshots(out, rate, trim)
+        # get snapshots, convert to JSON
+        data = json.dumps(self.get_snapshots(out, rate, trim), separators=(",", ":"))
 
         # write out
         file = Path(f"snapshots/{out}.js")
         with file.open("w") as fh:
-            fh.write(f"const {out} = {json.dumps(data)};\nexport default {out};")
+            fh.write(f"const {out} = {data};\nexport default {out};\n")
 
 
 if __name__ == "__main__":

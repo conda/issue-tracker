@@ -50,7 +50,7 @@ function getIssues(repo, state) {
 function writeSnapshot(path, prefix, snapshots) {
     // read in old data, if successful append new entry and write it out again
     try {
-        fs.writeFileSync(path, `const ${ prefix } = ${ JSON.stringify(snapshots) }\nexport default ${ prefix };`);
+        fs.writeFileSync(path, `const ${ prefix } = ${ JSON.stringify(snapshots) }\nexport default ${ prefix };\n`);
     } catch (err) {
         core.error(`Error writing file: ${ err }`);
         process.exit(1);
