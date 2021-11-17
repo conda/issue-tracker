@@ -160,12 +160,12 @@ function setDiff(path, snapshots) {
     for (let p of (path ? [path] : primary)) {
         slice = snapshots[p];
         if (slice) {
-            current += slice[slice.length - 1];
-            prior += slice[slice.length - 24];
+            current += slice[0];
+            prior += slice[23];
         }
     }
 
-    const diff = prior - current;
+    const diff = current - prior;
 
     let state;
     if (diff < 0) {
