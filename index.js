@@ -86,7 +86,7 @@ function generateChart(bindto, path, snapshots, increment) {
     const myChart = new Chart($("#" + bindto).get(0).getContext('2d'), {
         type: 'line',
         data: {
-            labels: snapshots.timestamp.slice(maxLength),
+            labels: snapshots.timestamp.slice(0, maxLength),
             datasets: datasets
         },
         options: {
