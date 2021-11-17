@@ -217,7 +217,7 @@ class History:
             year=now.year,
             month=now.month,
             day=now.day,
-            hour=0,
+            hour=int(now.hour / rate) * rate,
             minute=0,
             second=0,
         )
