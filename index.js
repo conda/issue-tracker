@@ -178,7 +178,7 @@ function setDiff(path, snapshots) {
         state = states["+"];
     }
 
-    $("#diff").addClass(state["color"]);
+    $("#diff").removeClass("alert-danger alert-warning alert-success").addClass(state["color"]);
     $("#diff").html(`
         <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="${ state["icon"] }"/></svg>
         <div>
