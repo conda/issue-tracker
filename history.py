@@ -298,6 +298,7 @@ class History:
 
         # write out
         file = Path("snapshots/repos.js")
+        file.parent.mkdir(parents=True, exist_ok=True)
         with file.open("w") as fh:
             fh.write(f"export const repos = {data};\n")
 
@@ -307,6 +308,7 @@ class History:
 
         # write out
         file = Path(f"snapshots/{out}.js")
+        file.parent.mkdir(parents=True, exist_ok=True)
         with file.open("w") as fh:
             fh.write(f"const {out} = {data};\nexport default {out};\n")
 
