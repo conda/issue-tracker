@@ -137,47 +137,6 @@ function generateChart(bindto, path, snapshots, increment) {
     });
 }
 
-function generateChart_c3(bindto, path, snapshots, increment) {
-    // generate C3 chart
-    c3.generate({
-        bindto: "#" + bindto,
-        data: {
-            x: "x",
-            columns: [["x", ...snapshots.timestamp], ["open issues", ...snapshots[path]]]
-        },
-        axis: {
-            y: {
-                tick: {
-                    format: function(x) {
-                        return x === Math.floor(x) ? x : "";
-                    }
-                }
-            },
-            x: {
-                tick: {
-                    format: function(d) {
-                        return moment.unix(d).format("llll");
-                    }
-                }
-            }
-        },
-        grid: {
-            x: {
-                lines: getGridLines(snapshots.timestamp[snapshots.timestamp.length - 1], snapshots.timestamp[0], increment)
-            }
-        },
-        tooltip: {
-            format: {
-                title: function(d) {
-                    return moment.unix(d).format("llll");
-                }
-            }
-        },
-        subchart: { show: true },
-        size: { height: 400 }
-    });
-}
-
 function setDiff(path, snapshots) {
     const states = {
         "+": {
