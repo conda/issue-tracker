@@ -77,9 +77,11 @@ function generateChart(bindto, path, snapshots, increment) {
     // compile datasets
     let datasets = [], maxLength = 0, data;
     for (let p of (path ? [path] : primary)) {
-        data = snapshots[p];
-        maxLength = Math.max(maxLength, data.length);
-        datasets.push({label: p, data: data, borderColor: colors[colorIndex++ % colorLength]});
+        if (p in snapshots) {
+            data = snapshots[p];
+            maxLength = Math.max(maxLength, data.length);
+            datasets.push({label: p, data: data, borderColor: colors[colorIndex++ % colorLength]});
+        }
     }
 
     // generate new chart
