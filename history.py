@@ -223,6 +223,7 @@ class History:
         )
 
         allIssues = deepcopy(self.github_issues)
+        repos = [r for r in self.repos if r in allIssues]
         snapshots = {}
 
         start = min(
@@ -250,15 +251,16 @@ class History:
                     chunk *= 2  # double chunk each time we increase the size
                     progress.update(task, total=total)
 
-                for repo, issues in list(allIssues.items()):
+                # iterate over repos so we preserve the natural repo order for insertion
+                for repo in repos:
                     open_ = 0
 
-                    for number, issue in list(issues.items()):
+                    for number, issue in list(allIssues[repo].items()):
                         if current < issue["created"]:
                             # the issue doesn't exist yet, since we are going backwards
                             # through the history, this means we can skip checking this
                             # issue in subsequent iterations
-                            issues.pop(number)
+                            allIssues[repo].pop(number)
                         elif not issue["closed"]:
                             open_ += 1
                         elif current < issue["closed"]:
@@ -267,11 +269,12 @@ class History:
                             # issue has been closed
                             pass
 
-                    if not issues:
+                    if not allIssues[repo]:
                         # no issues exist before this time, since we are going backwards
                         # through the history, this means we can skip checking this repo
                         # in subsequent iterations
                         allIssues.pop(repo)
+                        repos.remove(repo)
                         continue
 
                     snapshots.setdefault(repo, []).append(open_)
