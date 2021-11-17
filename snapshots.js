@@ -59,7 +59,7 @@ function writeSnapshot(path, prefix, snapshots) {
     core.notice(`${ snapshots.timestamp.length } snapshots successfully written!`);
 }
 
-const trimmed = (s, t) => t ? s.slice(-t) : s;
+const trimmed = (s, t) => t ? s.slice(0, t) : s;
 
 async function query(prefix, trim) {
     const path = `./snapshots/${ prefix }.js`;
