@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-      - run: npm install node-fetch moment
+      - run: npm install
       # run query
       - run: node snapshots.js recent 72
         env:

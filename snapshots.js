@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import moment from "moment";
+import {DateTime} from "luxon";
 import fs from "fs";
 import core from "@actions/core";
 import {repos} from "./snapshots/repos.js";
@@ -77,7 +77,8 @@ async function query(prefix, trim) {
             snapshots[repo] = trimmed([n], trim);
         }
     }
-    snapshots.timestamp = trimmed([moment().startOf("hour").valueOf(), ...snapshots.timestamp], trim);
+
+    snapshots.timestamp = trimmed([DateTime.now().startOf("hour").toMillis(), ...snapshots.timestamp], trim);
 
     writeSnapshot(path, prefix, snapshots, trim);
 }

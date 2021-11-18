@@ -2,8 +2,8 @@ name: Alltime
 on:
   schedule:
     # 15 past the hour, every 3 days
-    # https://crontab.guru/#15_*_*/3_*_*
-    - cron: 15 * */3 * *
+    # https://crontab.guru/#15_6_*/3_*_*
+    - cron: 15 6 */3 * *
 jobs:
   alltime:
     runs-on: ubuntu-latest
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-      - run: npm install node-fetch moment
+      - run: npm install
       # run query
       - run: node snapshots.js alltime 0
         env:

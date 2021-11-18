@@ -2,8 +2,8 @@ name: Year
 on:
   schedule:
     # 10 past the hour, every 24 hours
-    # https://crontab.guru/#10_0_*_*_*
-    - cron: 10 0 * * *
+    # https://crontab.guru/#10_6_*_*_*
+    - cron: 10 6 * * *
 jobs:
   year:
     runs-on: ubuntu-latest
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
-      - run: npm install node-fetch moment
+      - run: npm install
       # run query
       - run: node snapshots.js year 366
         env:

@@ -190,12 +190,10 @@ function setDiff(path, snapshots) {
 function getGridLines(firstTimestamp, lastTimestamp, increment) {
     const gridlines = [];
 
-    let firstDay = moment
-        .unix(firstTimestamp)
+    let firstDay = DateTime(firstTimestamp)
         .add(1, "days")
         .startOf("day");
-    let numOfDays = moment
-        .unix(lastTimestamp)
+    let numOfDays = DateTime(lastTimestamp)
         .startOf("day")
         .diff(firstDay, "days");
     for (let i = 0; i < numOfDays + 1; i++) {

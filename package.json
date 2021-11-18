@@ -1,5 +1,5 @@
 {
-  "name": "conda-issue-tracker",
+  "name": "issue-tracker",
   "version": "1.0.0",
   "description": "A simple website to display the number of issues open over time for [conda and friends](https://github.com/conda). Inspired by work done for the [VSCode Issue Tracker](https://github.com/lannonbr/vscode-issue-tracker).",
   "main": "main.js",
@@ -20,9 +20,8 @@
   "type": "module",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "@actions/github": "^5.0.0",
     "http-server": "^14.0.0",
-    "moment": "^2.29.1",
+    "luxon": "^2.1.1",
     "node-fetch": "^2.6.6"
   }
 }

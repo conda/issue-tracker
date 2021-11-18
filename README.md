@@ -65,7 +65,7 @@ The conda organization adheres to the [NumFOCUS Code of Conduct][code-of-conduct
    $ conda activate conda-issue-tracker
 
    # install nodejs packages
-   (conda-issue-tracker) $ npm install -g http-server node-fetch moment
+   (conda-issue-tracker) $ npm install
    ```
 
 ## Static Code Analysis
