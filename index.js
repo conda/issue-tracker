@@ -72,7 +72,7 @@ let colorIndex = 0, colorLength = colors.length;
 
 function generateChart(bindto, path, snapshots, increment) {
     // clear the old chart
-    $("#" + bindto).replaceWith('<canvas id="' + bindto + '" height="400px"></canvas>');
+    $("#" + bindto).replaceWith('<canvas id="' + bindto + '"></canvas>');
 
     // compile datasets
     let datasets = [], maxLength = 0, data;

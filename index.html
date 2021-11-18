@@ -51,62 +51,44 @@
 
     <!-- Content -->
     <div class="container-xxl flex-grow-1">
-        <h1>Conda Issue Tracker</h1>
+        <h1 class="mx-1 my-3">Conda Issue Tracker</h1>
 
-        <div class="border rounded p-2 mb-3 row align-items-center">
-            <div class="col-4">
-                <label for="repoSelection" class="d-inline-block">
-                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#graph-up"/></svg>
-                    Display:
-                </label>
-                <select id="repoSelection" name="repoSelection" class="form-select w-auto d-inline-block">
-                    <option value="">-</option>
-                </select>
-            </div>
-            <div class="col-4">
-                <a id="repoLink" class="btn btn-outline-dark disabled" href="">
-                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#github"/></svg>
-                    View repo on GitHub
-                </a>
-            </div>
-            <div class="col-4">
-                <div id="diff" class="alert d-inline-flex align-items-center mb-0 w-auto" role="alert"></div>
-            </div>
+        <div class="input-group rounded m-1 mb-3 d-flex w-auto">
+            <label for="repoSelection" class="input-group-text d-inline-flex">
+                <svg class="bi flex-shrink-0" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#graph-up"/></svg>
+                <!-- hide the text on small screens -->
+                <span class="ms-2 d-none d-sm-block">Display</span>
+            </label>
+            <select id="repoSelection" name="repoSelection" class="form-select">
+                <option value="">-</option>
+            </select>
+            <a id="repoLink" class="btn btn-outline-dark d-inline-flex disabled" href="">
+                <svg class="bi flex-shrink-0" width="24" height="24" role="img" aria-hidden="true"><use xlink:href="#github"/></svg>
+                <!-- hide the text on small screens -->
+                <span class="ms-2 d-none d-sm-block">View repo on GitHub</span>
+            </a>
         </div>
 
-        <div class="border rounded p-2 mb-3 row">
+        <div id="diff" class="alert rounded p-2 m-1 mb-3 d-flex align-items-center justify-content-center" role="alert">
+        </div>
+
+        <div class="border rounded p-2 m-1 mb-3 row">
             <h2>Hourly Overview</h2>
-            <!-- C3 struggles with correct size rendering without this -->
-            <!-- <div>
-                <div id="hourChart"></div>
-            </div> -->
             <canvas id="hourChart"></canvas>
         </div>
 
-        <div class="border rounded p-2 mb-3 row">
+        <div class="border rounded p-2 m-1 mb-3 row">
             <h2>Month Overview</h2>
-            <!-- C3 struggles with correct size rendering without this -->
-            <!-- <div>
-                <div id="monthChart"></div>
-            </div> -->
             <canvas id="monthChart"></canvas>
         </div>
 
-        <div class="border rounded p-2 mb-3 row">
+        <div class="border rounded p-2 m-1 mb-3 row">
             <h2>Year Overview</h2>
-            <!-- C3 struggles with correct size rendering without this -->
-            <!-- <div>
-                <div id="yearChart"></div>
-            </div> -->
             <canvas id="yearChart"></canvas>
         </div>
 
-        <div class="border rounded p-2 mb-3 row">
+        <div class="border rounded p-2 m-1 mb-3 row">
             <h2>All Time Overview</h2>
-            <!-- C3 struggles with correct size rendering without this -->
-            <!-- <div>
-                <div id="alltimeChart"></div>
-            </div> -->
             <canvas id="alltimeChart"></canvas>
         </div>
     </div>
