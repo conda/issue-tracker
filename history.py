@@ -212,6 +212,7 @@ class History:
         self._github_issues[repo] = data
 
     def get_snapshots(self, out, rate, trim):
+        # get current time, this is the starting point of our snapshot
         now = datetime.now()
         current = datetime(
             year=now.year,
@@ -222,16 +223,16 @@ class History:
             second=0,
         )
 
-        allIssues = deepcopy(self.github_issues)
-        repos = [r for r in self.repos if r in allIssues]
-        snapshots = {}
-
+        # get the start time, this is the earliest possible timestamp of our snapshot
         start = min(
             next(iter(issues.values()))["created"]
-            for issues in allIssues.values()
+            for issues in self.github_issues.values()
             if issues
         )
 
+        issues = deepcopy(self.github_issues)
+        repos = [r for r in self.repos if r in self.github_issues]
+        snapshots = {}
         total, chunk, i = 50, 50, 0
 
         with Progress(
@@ -244,7 +245,7 @@ class History:
         ) as progress:
             task = progress.add_task(description=f"Processing {out}", total=total)
 
-            while current > start and (not trim or i < trim):
+            while current >= start and (not trim or i < trim):
                 # grow progress bar if total surpassed
                 if i >= total:
                     total += chunk
@@ -252,15 +253,16 @@ class History:
                     progress.update(task, total=total)
 
                 # iterate over repos so we preserve the natural repo order for insertion
-                for repo in repos:
+                for repo in list(repos):
                     open_ = 0
 
-                    for number, issue in list(allIssues[repo].items()):
+                    for number in list(issues[repo]):
+                        issue = issues[repo][number]
                         if current < issue["created"]:
                             # the issue doesn't exist yet, since we are going backwards
                             # through the history, this means we can skip checking this
                             # issue in subsequent iterations
-                            allIssues[repo].pop(number)
+                            issues[repo].pop(number)
                         elif not issue["closed"]:
                             open_ += 1
                         elif current < issue["closed"]:
@@ -269,11 +271,11 @@ class History:
                             # issue has been closed
                             pass
 
-                    if not allIssues[repo]:
+                    if not issues[repo]:
                         # no issues exist before this time, since we are going backwards
                         # through the history, this means we can skip checking this repo
                         # in subsequent iterations
-                        allIssues.pop(repo)
+                        issues.pop(repo)
                         repos.remove(repo)
                         continue
 
