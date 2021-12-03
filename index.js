@@ -114,6 +114,7 @@ function generateChart(bindto, path, snapshots, increment) {
                     }
                 }
             },
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
