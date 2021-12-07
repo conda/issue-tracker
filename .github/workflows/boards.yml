@@ -1,7 +1,7 @@
 name: Automate Boards
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, labeled, unlabeled]
   issue_comment:
     types: [created]
   project_card:
