@@ -104,7 +104,7 @@ jobs:
         with:
           action: delete  # if present
           project: Triaging
-          column: Unused
+          column: Ready  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [backlog] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
@@ -130,7 +130,7 @@ jobs:
         with:
           action: delete  # if present
           project: Sprint
-          column: Unused
+          column: To Do  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
 
   move_to_sprint:
@@ -182,7 +182,7 @@ jobs:
         with:
           action: delete  # if present
           project: Triaging
-          column: Unused
+          column: Ready  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [backlog] label
       - uses: actions-ecosystem/action-remove-labels@v1.1.0
@@ -195,7 +195,7 @@ jobs:
         with:
           action: delete  # if present
           project: Backlog
-          column: Unused
+          column: Do Next  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [sprint] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
