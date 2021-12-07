@@ -120,7 +120,7 @@ jobs:
           column: Unplanned
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [sprint] label
-      - uses: actions-ecosystem/action-remove-labels@v1.1.0
+      - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
           labels: sprint
           number: ${{ github.issue.number || steps.number.outputs.replaced }}
@@ -185,7 +185,7 @@ jobs:
           column: Ready  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [backlog] label
-      - uses: actions-ecosystem/action-remove-labels@v1.1.0
+      - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
           labels: backlog
           number: ${{ github.issue.number || steps.number.outputs.replaced }}
