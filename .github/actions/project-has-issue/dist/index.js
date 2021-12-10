@@ -32,7 +32,7 @@ catch (e1) {
         token = (0, fs_1.readFileSync)((0, path_1.join)((0, os_1.homedir)(), '.github_token'), 'utf8').trim();
     }
     catch (e2) {
-        if (e2 instanceof Error && e2.name == "ENOENT") {
+        if (e2 instanceof Error && e2.name == 'ENOENT') {
             throw e1;
         }
         else {
@@ -74,13 +74,13 @@ function projectIssues(project, options) {
             resp = raw.user;
         }
         else if (options.repo) {
-            const [owner, name] = options.repo.split("/");
+            const [owner, name] = options.repo.split('/');
             const q = `{ repository(owner: "${owner}", name: "${name}") { ${query} } }`;
             const raw = yield octokit.graphql(q);
             resp = raw.repository;
         }
         else {
-            throw new Error("Input required and not supplied: org, user, or repo");
+            throw new Error('Input required and not supplied: org, user, or repo');
         }
         return resp.project.columns.nodes.reduce((prev, cur) => {
             return Object.assign(Object.assign({}, prev), cur.cards.nodes.reduce((prev, cur) => {
@@ -108,15 +108,13 @@ function projectHasIssue(project, issue, options) {
 function main_cli() {
     return __awaiter(this, void 0, void 0, function* () {
         const program = new commander_1.Command();
+        program.version(version_1.LIB_VERSION).showSuggestionAfterError();
         program
-            .version(version_1.LIB_VERSION)
-            .showSuggestionAfterError();
-        program
-            .argument("<project>", "the project number to search", parseInt)
-            .argument("[issue]", "the issue number to search for", parseInt)
-            .option("-o, --org <org>", "the organization to search (e.g. conda)")
-            .option("-u, --user <user>", "the user to search (e.g. conda-bot)")
-            .option("-r, --repo <repo>", "the repository to search (e.g. conda/conda)")
+            .argument('<project>', 'the project number to search', parseInt)
+            .argument('[issue]', 'the issue number to search for', parseInt)
+            .option('-o, --org <org>', 'the organization to search (e.g. conda)')
+            .option('-u, --user <user>', 'the user to search (e.g. conda-bot)')
+            .option('-r, --repo <repo>', 'the repository to search (e.g. conda/conda)')
             .description('check if issue is defined in project')
             .action((project, issue, options) => __awaiter(this, void 0, void 0, function* () {
             const result = yield projectHasIssue(project, issue, options);
@@ -127,17 +125,21 @@ function main_cli() {
 }
 function main_env() {
     return __awaiter(this, void 0, void 0, function* () {
-        const org = (0, core_1.getInput)("org") || null;
-        const user = (0, core_1.getInput)("user") || null;
-        const repo = (0, core_1.getInput)("repo") || null;
-        const project = parseInt((0, core_1.getInput)("project", { required: true }));
-        const rissue = (0, core_1.getInput)("issue");
-        const issue = (rissue) ? parseInt(rissue) : null;
-        const result = yield projectHasIssue(project, issue, { org: org, user: user, repo: repo });
+        const org = (0, core_1.getInput)('org') || null;
+        const user = (0, core_1.getInput)('user') || null;
+        const repo = (0, core_1.getInput)('repo') || null;
+        const project = parseInt((0, core_1.getInput)('project', { required: true }));
+        const rissue = (0, core_1.getInput)('issue');
+        const issue = rissue ? parseInt(rissue) : null;
+        const result = yield projectHasIssue(project, issue, {
+            org: org,
+            user: user,
+            repo: repo,
+        });
         if (!!result === result)
-            (0, core_1.setOutput)("contains", result);
+            (0, core_1.setOutput)('contains', result);
         else
-            (0, core_1.setOutput)("issues", result);
+            (0, core_1.setOutput)('issues', result);
     });
 }
 if (process.argv.length > 2)

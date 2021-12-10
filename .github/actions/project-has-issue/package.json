@@ -2,12 +2,15 @@
   "name": "project-has-issue",
   "version": "0.1.0",
   "description": "Detect whether an issue exists in the specified project.",
-  "main": "dist/index.js",
+  "main": "lib/main.js",
   "scripts": {
+    "clean": "rm -rf ./dist",
     "prebuild": "node -p \"'export const LIB_VERSION: string = ' + JSON.stringify(require('./package.json').version)\" > src/version.ts",
     "build": "tsc && ncc build",
-    "app:dist": "npm run build && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/index.js",
-    "app:src": "ts-node -r tsconfig-paths/register ./src/main.ts",
+    "rebuild": "npm run clean && npm run build",
+    "dist": "npm run build && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/index.js",
+    "dist:re": "npm run clean && npm run dist",
+    "dev": "ts-node -r tsconfig-paths/register ./src/main.ts",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
