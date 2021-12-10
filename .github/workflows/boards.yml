@@ -117,7 +117,7 @@ jobs:
         || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == BACKLOG_PRJ
+          && github.event.project_card.project_url == needs.env.outputs.BACKLOG_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
@@ -129,7 +129,7 @@ jobs:
         || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == SPRINT_PRJ
+          && github.event.project_card.project_url == needs.env.outputs.SPRINT_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
@@ -210,7 +210,7 @@ jobs:
         || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == BACKLOG_PRJ
+          && github.event.project_card.project_url == needs.env.outputs.BACKLOG_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
@@ -222,7 +222,7 @@ jobs:
         || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == SPRINT_PRJ
+          && github.event.project_card.project_url == needs.env.outputs.SPRINT_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
