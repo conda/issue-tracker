@@ -57,6 +57,7 @@ jobs:
         }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: on_triaging
         if: github.event_name == 'issues'
         uses: ./.github/actions/project-has-issue
