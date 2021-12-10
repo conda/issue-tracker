@@ -2,14 +2,10 @@ name: Automate Boards
 on:
   issues:
     types: [opened, labeled, unlabeled]
-  issue_comment:
-    types: [created]
   project_card:
     types: [created, deleted]
 env:
   # labels
-  FEEDBACK_LBL: pending::feedback
-  SUPPORT_LBL: pending::support
   BACKLOG_LBL: backlog
   SPRINT_LBL: sprint
   # projects
@@ -68,32 +64,6 @@ jobs:
           org: conda
           project: ${{ env.SPRINT_ID }}
           issue: ${{ needs.issue.outputs.number }}
-          github_token: ${{ secrets.PROJECT_TOKEN }}
-
-  # NOTE: doesn't catch cases where multiple users act as the author/reporter,
-  # this is just an effort to catch the majority of support cases
-  # TODO: create conda-triaging team and modify this to toggle label based on
-  # whether a non-triaging engineer commented
-  pending_support:
-    # if [pending::feedback] and the author responds
-    if: >-
-      github.event_name == 'issue_comment'
-      && github.event.action == 'created'
-      && !github.event.issue.pull_request
-      && contains(github.event.issue.labels.*.name, env.FEEDBACK_LBL)
-      && github.event.issue.user.login == github.event.comment.user.login
-    runs-on: ubuntu-latest
-    steps:
-      # remove [pending::feedback]
-      - uses: actions-ecosystem/action-remove-labels@v1.3.0
-        with:
-          labels: ${{ env.FEEDBACK_LBL }}
-          github_token: ${{ secrets.PROJECT_TOKEN }}
-      # add [pending::feedback], if still open
-      - uses: actions-ecosystem/action-add-labels@v1.1.0
-        if: github.event.issue.state == 'open'
-        with:
-          labels: ${{ env.SUPPORT_LBL }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
 
   # new -> Triaging[New]
