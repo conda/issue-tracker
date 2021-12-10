@@ -21,6 +21,8 @@ jobs:
       SPRINT_ID: "8"
       SPRINT_PRJ: https://api.github.com/projects/13829490
     runs-on: ubuntu-latest
+    steps:
+      - run: echo "Env hack"
 
   # (helper) get issue number
   issue:
