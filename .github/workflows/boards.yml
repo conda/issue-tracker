@@ -150,9 +150,9 @@ jobs:
       # add to Backlog board (from Triaging board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
-          needs.project.outputs.on_triaging || (
+          fromJSON(needs.project.outputs.on_triaging) || (
             !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
-            && !needs.project.outputs.on_sprint
+            && !fromJSON(needs.project.outputs.on_sprint)
           )
         with:
           action: add # if not present
@@ -162,9 +162,9 @@ jobs:
       # add to Backlog board (from Sprint board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
-          !needs.project.outputs.on_triaging && (
+          !fromJSON(needs.project.outputs.on_triaging) && (
             contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
-            || needs.project.outputs.on_sprint
+            || fromJSON(needs.project.outputs.on_sprint)
           )
         with:
           action: add # if not present
