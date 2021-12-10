@@ -4,18 +4,24 @@ on:
     types: [opened, labeled, unlabeled]
   project_card:
     types: [created, deleted]
-env:
-  # labels
-  BACKLOG_LBL: backlog
-  SPRINT_LBL: sprint
-  # projects
-  TRIAGING_ID: 4
-  TRIAGING_PRJ: https://api.github.com/projects/13697310
-  BACKLOG_ID: 5
-  BACKLOG_PRJ: https://api.github.com/projects/13697370
-  SPRINT_ID: 8
-  SPRINT_PRJ: https://api.github.com/projects/13829490
 jobs:
+  env:
+    # since env is not available in if expressions we hack around this
+    # constraint by relying on needs/outputs instead
+    # see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+    outputs:
+      # labels
+      BACKLOG_LBL: backlog
+      SPRINT_LBL: sprint
+      # projects
+      TRIAGING_ID: "4"
+      TRIAGING_PRJ: https://api.github.com/projects/13697310
+      BACKLOG_ID: "5"
+      BACKLOG_PRJ: https://api.github.com/projects/13697370
+      SPRINT_ID: "8"
+      SPRINT_PRJ: https://api.github.com/projects/13829490
+    runs-on: ubuntu-latest
+
   # (helper) get issue number
   issue:
     outputs:
@@ -40,12 +46,12 @@ jobs:
       on_triaging: >-
         ${{
           steps.on_triaging.outputs.contains
-          || github.event.project_card.project_url == env.TRIAGING_PRJ
+          || github.event.project_card.project_url == needs.env.outputs.TRIAGING_PRJ
         }}
       on_sprint: >-
         ${{
           steps.on_sprint.outputs.contains
-          || github.event.project_card.project_url == env.SPRINT_PRJ
+          || github.event.project_card.project_url == needs.env.outputs.SPRINT_PRJ
         }}
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +60,7 @@ jobs:
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
-          project: ${{ env.TRIAGING_ID }}
+          project: ${{ needs.env.outputs.TRIAGING_ID }}
           issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       - name: on_sprint
@@ -62,7 +68,7 @@ jobs:
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
-          project: ${{ env.SPRINT_ID }}
+          project: ${{ needs.env.outputs.SPRINT_ID }}
           issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
 
@@ -72,8 +78,8 @@ jobs:
     if: >-
       github.event_name == 'issues'
       && github.event.action == 'opened'
-      && !contains(github.event.issue.labels.*.name, env.BACKLOG_LBL)
-      && !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+      && !contains(github.event.issue.labels.*.name, needs.env.outputs.BACKLOG_LBL)
+      && !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
     runs-on: ubuntu-latest
     steps:
       # add to Triaging board
@@ -98,13 +104,13 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, env.BACKLOG_LBL)
-          && !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+          && contains(github.event.issue.labels.*.name, needs.env.outputs.BACKLOG_LBL)
+          && !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == env.BACKLOG_LBL
+          && github.event.label.name == needs.env.outputs.BACKLOG_LBL
         )
         || (
           github.event_name == 'project_card'
@@ -116,7 +122,7 @@ jobs:
         || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == env.SPRINT_LBL
+          && github.event.label.name == needs.env.outputs.SPRINT_LBL
         )
         || (
           github.event_name == 'project_card'
@@ -133,19 +139,19 @@ jobs:
         with:
           action: delete # if present
           project: Triaging
-          column: Ready  # unused
+          column: Ready # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [backlog] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: ${{ env.BACKLOG_LBL }}
+          labels: ${{ needs.env.outputs.BACKLOG_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Backlog board (from Triaging board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
           needs.project.outputs.on_triaging || (
-            !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+            !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
             && !needs.project.outputs.on_sprint
           )
         with:
@@ -157,7 +163,7 @@ jobs:
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
           !needs.project.outputs.on_triaging && (
-            contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+            contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
             || needs.project.outputs.on_sprint
           )
         with:
@@ -168,7 +174,7 @@ jobs:
       # remove [sprint] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: ${{ env.SPRINT_LBL }}
+          labels: ${{ needs.env.outputs.SPRINT_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Sprint board
@@ -176,7 +182,7 @@ jobs:
         with:
           action: delete # if present
           project: Sprint
-          column: To Do  # unused
+          column: To Do # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
 
   # new -> Sprint[To Do]
@@ -192,12 +198,12 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+          && contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == env.BACKLOG_LBL
+          && github.event.label.name == needs.env.outputs.BACKLOG_LBL
         )
         || (
           github.event_name == 'project_card'
@@ -209,7 +215,7 @@ jobs:
         || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == env.SPRINT_LBL
+          && github.event.label.name == needs.env.outputs.SPRINT_LBL
         )
         || (
           github.event_name == 'project_card'
@@ -226,12 +232,12 @@ jobs:
         with:
           action: delete # if present
           project: Triaging
-          column: Ready  # unused
+          column: Ready # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [backlog] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: ${{ env.BACKLOG_LBL }}
+          labels: ${{ needs.env.outputs.BACKLOG_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Backlog board
@@ -239,12 +245,12 @@ jobs:
         with:
           action: delete # if present
           project: Backlog
-          column: Do Next  # unused
+          column: Do Next # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [sprint] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: ${{ env.SPRINT_LBL }}
+          labels: ${{ needs.env.outputs.SPRINT_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Sprint board
