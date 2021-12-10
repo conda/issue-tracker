@@ -2,59 +2,92 @@ name: Automate Boards
 on:
   issues:
     types: [opened, labeled, unlabeled]
-  issue_comment:
-    types: [created]
   project_card:
     types: [created, deleted]
+env:
+  # labels
+  BACKLOG_LBL: backlog
+  SPRINT_LBL: sprint
+  # projects
+  TRIAGING_ID: 4
+  TRIAGING_PRJ: https://api.github.com/projects/13697310
+  BACKLOG_ID: 5
+  BACKLOG_PRJ: https://api.github.com/projects/13697370
+  SPRINT_ID: 8
+  SPRINT_PRJ: https://api.github.com/projects/13829490
 jobs:
-  # NOTE: doesn't catch cases where multiple users act as the author/reporter,
-  # this is just an effort to catch the majority of support cases
-  # TODO: create conda-triaging team and modify this to toggle label based on
-  # whether a non-triaging engineer commented
-  pending_support:
-    # if [pending::feedback] and the author responds
-    if: >-
-      github.event_name == 'issue_comment'
-      && github.event.action == 'created'
-      && !github.event.issue.pull_request
-      && contains(github.event.issue.labels.*.name, 'pending::feedback')
-      && github.event.issue.user.login == github.event.comment.user.login
+  # (helper) get issue number
+  issue:
+    outputs:
+      number: >-
+        ${{
+          steps.regex.outputs.replaced
+          || github.event.issue.id
+        }}
     runs-on: ubuntu-latest
     steps:
-      # remove [pending::feedback]
-      - uses: actions-ecosystem/action-remove-labels@v1.3.0
+      - name: regex
+        if: github.event_name == 'project_card'
+        uses: frabert/replace-string-action@v2.0
         with:
-          labels: pending::feedback
+          pattern: .+/(\d+)
+          string: ${{ github.event.project_card.content_url }}
+          replace-with: $1
+
+  # (helper) whether issue is on Triaging/Sprint board
+  project:
+    outputs:
+      on_triaging: >-
+        ${{
+          steps.on_triaging.outputs.contains
+          || github.event.project_card.project_url == env.TRIAGING_PRJ
+        }}
+      on_sprint: >-
+        ${{
+          steps.on_sprint.outputs.contains
+          || github.event.project_card.project_url == env.SPRINT_PRJ
+        }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: on_triaging
+        if: github.event_name == 'issues'
+        uses: ./.github/actions/project-has-issue
+        with:
+          org: conda
+          project: ${{ env.TRIAGING_ID }}
+          issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
-      # add [pending::feedback], if still open
-      - uses: actions-ecosystem/action-add-labels@v1.1.0
-        if: github.event.issue.state == 'open'
+      - name: on_sprint
+        if: github.event_name == 'issues'
+        uses: ./.github/actions/project-has-issue
         with:
-          labels: pending::support
+          org: conda
+          project: ${{ env.SPRINT_ID }}
+          issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
 
-  move_to_triaging:
+  # new -> Triaging[New]
+  to_triaging:
     # if new issue and not [backlog] or [sprint]
     if: >-
-      github.event.issue.state == 'open' && (
-        (
-          github.event_name == 'issues'
-          && github.event.action == 'opened'
-          && !contains(github.event.issue.labels.*.name, 'backlog')
-          && !contains(github.event.issue.labels.*.name, 'sprint')
-        )
-      )
+      github.event_name == 'issues'
+      && github.event.action == 'opened'
+      && !contains(github.event.issue.labels.*.name, env.BACKLOG_LBL)
+      && !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
     runs-on: ubuntu-latest
     steps:
       # add to Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: add  # if not present
+          action: add # if not present
           project: Triaging
           column: New
           repo-token: ${{ secrets.PROJECT_TOKEN }}
 
-  move_to_backlog:
+  # new -> Backlog[Unplanned]
+  # Triaging[Ready] -> Backlog[Unplanned]
+  # Sprint[To Do] -> Backlog[Do Next]
+  to_backlog:
     # if new issue with [backlog]
     # if labeled [backlog]
     # if added to Backlog board
@@ -65,75 +98,90 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, 'backlog')
-          && !contains(github.event.issue.labels.*.name, 'sprint')
-        ) || (
+          && contains(github.event.issue.labels.*.name, env.BACKLOG_LBL)
+          && !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+        )
+        || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == 'backlog'
-        ) || (
+          && github.event.label.name == env.BACKLOG_LBL
+        )
+        || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
+          && github.event.project_card.project_url == BACKLOG_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
-        ) || (
+        )
+        || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == 'sprint'
-        ) || (
+          && github.event.label.name == env.SPRINT_LBL
+        )
+        || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
+          && github.event.project_card.project_url == SPRINT_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
       )
     runs-on: ubuntu-latest
     steps:
-      # (if project_card) get issue number
-      - name: number
-        if: github.event_name == 'project_card'
-        uses: frabert/replace-string-action@v2.0
-        with:
-          pattern: '.+/(\d+)'
-          string: ${{ github.event.project_card.content_url }}
-          replace-with: '$1'
       # (fail-safe) remove from Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: delete  # if present
+          action: delete # if present
           project: Triaging
           column: Ready  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [backlog] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: backlog
-          number: ${{ github.issue.number || steps.number.outputs.replaced }}
+          labels: ${{ env.BACKLOG_LBL }}
+          number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
-      # add to Backlog board
+      # add to Backlog board (from Triaging board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
+        if: >-
+          needs.project.outputs.on_triaging || (
+            !contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+            && !needs.project.outputs.on_sprint
+          )
         with:
-          action: add  # if not present
+          action: add # if not present
           project: Backlog
           column: Unplanned
+          repo-token: ${{ secrets.PROJECT_TOKEN }}
+      # add to Backlog board (from Sprint board)
+      - uses: alex-page/github-project-automation-plus@v0.8.1
+        if: >-
+          !needs.project.outputs.on_triaging && (
+            contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+            || needs.project.outputs.on_sprint
+          )
+        with:
+          action: add # if not present
+          project: Backlog
+          column: Do Next
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [sprint] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: sprint
-          number: ${{ github.issue.number || steps.number.outputs.replaced }}
+          labels: ${{ env.SPRINT_LBL }}
+          number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Sprint board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: delete  # if present
+          action: delete # if present
           project: Sprint
           column: To Do  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
 
-  move_to_sprint:
+  # new -> Sprint[To Do]
+  # Backlog[Do Next] -> Sprint[To Do]
+  to_sprint:
     # if new issue with [sprint]
     # if unlabeled [backlog]
     # if removed from Backlog board
@@ -144,69 +192,65 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, 'sprint')
-        ) || (
+          && contains(github.event.issue.labels.*.name, env.SPRINT_LBL)
+        )
+        || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == 'backlog'
-        ) || (
+          && github.event.label.name == env.BACKLOG_LBL
+        )
+        || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
+          && github.event.project_card.project_url == BACKLOG_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
-        ) || (
+        )
+        || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == 'sprint'
-        ) || (
+          && github.event.label.name == env.SPRINT_LBL
+        )
+        || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
+          && github.event.project_card.project_url == SPRINT_PRJ
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
       )
     runs-on: ubuntu-latest
     steps:
-      # (if project_card) get issue number
-      - name: number
-        if: github.event_name == 'project_card'
-        uses: frabert/replace-string-action@v2.0
-        with:
-          pattern: '.+/(\d+)'
-          string: ${{ github.event.project_card.content_url }}
-          replace-with: '$1'
       # (fail-safe) remove from Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: delete  # if present
+          action: delete # if present
           project: Triaging
           column: Ready  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # remove [backlog] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: backlog
-          number: ${{ github.issue.number || steps.number.outputs.replaced }}
+          labels: ${{ env.BACKLOG_LBL }}
+          number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Backlog board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: delete  # if present
+          action: delete # if present
           project: Backlog
           column: Do Next  # unused
           repo-token: ${{ secrets.PROJECT_TOKEN }}
       # add [sprint] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: sprint
-          number: ${{ github.issue.number || steps.number.outputs.replaced }}
+          labels: ${{ env.SPRINT_LBL }}
+          number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Sprint board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
-          action: add  # if not present
+          action: add # if not present
           project: Sprint
           column: To Do
           repo-token: ${{ secrets.PROJECT_TOKEN }}

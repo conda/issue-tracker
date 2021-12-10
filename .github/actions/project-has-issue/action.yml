@@ -1,0 +1,33 @@
+name: Issue in Project
+description: Detect whether an issue exists in the specified project.
+author: Anaconda Inc.
+inputs:
+  github_token:
+    description: A GitHub token.
+    required: false
+    default: ${{ github.token }}
+  org:
+    description: The organization to search (e.g. conda).
+    required: false
+  user:
+    description: The user to search (e.g. conda-bot).
+    required: false
+  repo:
+    description: The repository to search (e.g. conda/conda).
+    required: false
+    default: ${{ github.repository }}
+  project:
+    description: The project number to search.
+    required: true
+  issue:
+    description: The issue number to search for.
+    required: true
+outputs:
+  contains:
+    description: Whether the specified issue is contained in the org/user/repo project.
+runs:
+  using: node16
+  main: dist/index.js
+branding:
+  icon: hash
+  color: green
