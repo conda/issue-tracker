@@ -5,36 +5,17 @@ on:
   project_card:
     types: [created, deleted]
 env:
-  # labels
   BACKLOG_LBL: backlog
   SPRINT_LBL: sprint
-  # projects
-  TRIAGING_ID: "4"
-  TRIAGING_PRJ: https://api.github.com/projects/13697310
-  BACKLOG_ID: "5"
-  BACKLOG_PRJ: https://api.github.com/projects/13697370
-  SPRINT_ID: "8"
-  SPRINT_PRJ: https://api.github.com/projects/13829490
+  # these variables cannot be used in if expressions
+  # see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+  TRIAGING_ID: 4
+  TRIAGING_URL: https://api.github.com/projects/13697310
+  BACKLOG_ID: 5
+  BACKLOG_URL: https://api.github.com/projects/13697370
+  SPRINT_ID: 8
+  SPRINT_URL: https://api.github.com/projects/13829490
 jobs:
-  env:
-    # since env is not available in if expressions we hack around this
-    # constraint by relying on needs/outputs instead
-    # see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
-    outputs:
-      # labels
-      BACKLOG_LBL: ${{ env.BACKLOG_LBL }}
-      SPRINT_LBL: ${{ env.SPRINT_LBL }}
-      # projects
-      TRIAGING_ID: ${{ env.TRIAGING_ID }}
-      TRIAGING_PRJ: ${{ env.TRIAGING_PRJ }}
-      BACKLOG_ID: ${{ env.BACKLOG_ID}}
-      BACKLOG_PRJ: ${{ env.BACKLOG_PRJ}}
-      SPRINT_ID: ${{ env.SPRINT_ID }}
-      SPRINT_PRJ: ${{ env.SPRINT_PRJ }}
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Env hack"
-
   # (helper) get issue number
   issue:
     outputs:
@@ -59,12 +40,12 @@ jobs:
       on_triaging: >-
         ${{
           steps.on_triaging.outputs.contains
-          || github.event.project_card.project_url == env.TRIAGING_PRJ
+          || github.event.project_card.project_url == env.TRIAGING_URL
         }}
       on_sprint: >-
         ${{
           steps.on_sprint.outputs.contains
-          || github.event.project_card.project_url == env.SPRINT_PRJ
+          || github.event.project_card.project_url == env.SPRINT_URL
         }}
     runs-on: ubuntu-latest
     steps:
@@ -92,8 +73,8 @@ jobs:
     if: >-
       github.event_name == 'issues'
       && github.event.action == 'opened'
-      && !contains(github.event.issue.labels.*.name, needs.env.outputs.BACKLOG_LBL)
-      && !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
+      && !contains(github.event.issue.labels.*.name, 'backlog')
+      && !contains(github.event.issue.labels.*.name, 'sprint')
     runs-on: ubuntu-latest
     steps:
       # add to Triaging board
@@ -118,30 +99,30 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, needs.env.outputs.BACKLOG_LBL)
-          && !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
+          && contains(github.event.issue.labels.*.name, 'backlog')
+          && !contains(github.event.issue.labels.*.name, 'sprint')
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == needs.env.outputs.BACKLOG_LBL
+          && github.event.label.name == 'backlog'
         )
         || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == needs.env.outputs.BACKLOG_PRJ
+          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == needs.env.outputs.SPRINT_LBL
+          && github.event.label.name == 'sprint'
         )
         || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == needs.env.outputs.SPRINT_PRJ
+          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
@@ -165,7 +146,7 @@ jobs:
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
           fromJSON(needs.project.outputs.on_triaging) || (
-            !contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
+            !contains(github.event.issue.labels.*.name, 'sprint')
             && !fromJSON(needs.project.outputs.on_sprint)
           )
         with:
@@ -177,7 +158,7 @@ jobs:
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
           !fromJSON(needs.project.outputs.on_triaging) && (
-            contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
+            contains(github.event.issue.labels.*.name, 'sprint')
             || fromJSON(needs.project.outputs.on_sprint)
           )
         with:
@@ -212,29 +193,29 @@ jobs:
         (
           github.event_name == 'issues'
           && github.event.action == 'opened'
-          && contains(github.event.issue.labels.*.name, needs.env.outputs.SPRINT_LBL)
+          && contains(github.event.issue.labels.*.name, 'sprint')
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
-          && github.event.label.name == needs.env.outputs.BACKLOG_LBL
+          && github.event.label.name == 'backlog'
         )
         || (
           github.event_name == 'project_card'
           && github.event.action == 'deleted'
-          && github.event.project_card.project_url == needs.env.outputs.BACKLOG_PRJ
+          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
         || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
-          && github.event.label.name == needs.env.outputs.SPRINT_LBL
+          && github.event.label.name == 'sprint'
         )
         || (
           github.event_name == 'project_card'
           && github.event.action == 'created'
-          && github.event.project_card.project_url == needs.env.outputs.SPRINT_PRJ
+          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
           && !github.event.project_card.note
           && github.event.project_card.content_url
         )
