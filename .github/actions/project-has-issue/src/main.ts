@@ -82,6 +82,7 @@ async function projectIssues(
       organization: Project
     }
     const q = `{ organization(login: "${options.org}") { ${query} } }`
+    console.log(q)
     const raw: Org = await octokit.graphql(q)
     resp = raw.organization
   } else if (options.user) {
@@ -89,6 +90,7 @@ async function projectIssues(
       user: Project
     }
     const q = `{ user(login: "${options.user}") { ${query} } }`
+    console.log(q)
     const raw: User = await octokit.graphql(q)
     resp = raw.user
   } else if (options.repo) {
@@ -97,6 +99,7 @@ async function projectIssues(
     }
     const [owner, name] = options.repo.split('/')
     const q = `{ repository(owner: "${owner}", name: "${name}") { ${query} } }`
+    console.log(q)
     const raw: Repo = await octokit.graphql(q)
     resp = raw.repository
   } else {

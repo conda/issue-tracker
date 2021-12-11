@@ -65,17 +65,20 @@ function projectIssues(project, options) {
         let resp;
         if (options.org) {
             const q = `{ organization(login: "${options.org}") { ${query} } }`;
+            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.organization;
         }
         else if (options.user) {
             const q = `{ user(login: "${options.user}") { ${query} } }`;
+            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.user;
         }
         else if (options.repo) {
             const [owner, name] = options.repo.split('/');
             const q = `{ repository(owner: "${owner}", name: "${name}") { ${query} } }`;
+            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.repository;
         }
