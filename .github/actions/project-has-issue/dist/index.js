@@ -65,32 +65,33 @@ function projectIssues(project, options) {
         let resp;
         if (options.org) {
             const q = `{ organization(login: "${options.org}") { ${query} } }`;
-            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.organization;
         }
         else if (options.user) {
             const q = `{ user(login: "${options.user}") { ${query} } }`;
-            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.user;
         }
         else if (options.repo) {
             const [owner, name] = options.repo.split('/');
             const q = `{ repository(owner: "${owner}", name: "${name}") { ${query} } }`;
-            console.log(q);
             const raw = yield octokit.graphql(q);
             resp = raw.repository;
         }
         else {
             throw new Error('Input required and not supplied: org, user, or repo');
         }
+        if (!resp.project)
+            return {};
         return resp.project.columns.nodes.reduce((prev, cur) => {
             return Object.assign(Object.assign({}, prev), cur.cards.nodes.reduce((prev, cur) => {
-                prev[cur.content.databaseId] = {
-                    id: cur.content.number,
-                    title: cur.content.title,
-                };
+                if (cur.content) {
+                    prev[cur.content.databaseId] = {
+                        id: cur.content.number,
+                        title: cur.content.title,
+                    };
+                }
                 return prev;
             }, {}));
         }, {});
