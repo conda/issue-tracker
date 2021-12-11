@@ -4,6 +4,17 @@ on:
     types: [opened, labeled, unlabeled]
   project_card:
     types: [created, deleted]
+env:
+  BACKLOG_LBL: backlog
+  SPRINT_LBL: sprint
+  # these variables cannot be used in if expressions
+  # see https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
+  TRIAGING_ID: 4
+  TRIAGING_URL: https://api.github.com/projects/13697310
+  BACKLOG_ID: 5
+  BACKLOG_URL: https://api.github.com/projects/13697370
+  SPRINT_ID: 8
+  SPRINT_URL: https://api.github.com/projects/13829490
 jobs:
   # (helper) get issue number
   issue:
@@ -29,12 +40,12 @@ jobs:
       on_triaging: >-
         ${{
           steps.on_triaging.outputs.contains
-          || github.event.project_card.project_url == 'https://api.github.com/projects/13697310'
+          || github.event.project_card.project_url == env.TRIAGING_URL
         }}
       on_sprint: >-
         ${{
           steps.on_sprint.outputs.contains
-          || github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
+          || github.event.project_card.project_url == env.SPRINT_URL
         }}
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +55,7 @@ jobs:
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
-          project: 4
+          project: ${{ env.TRIAGING_ID }}
           issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       - name: on_sprint
@@ -52,7 +63,7 @@ jobs:
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
-          project: 8
+          project: ${{ env.SPRINT_ID }}
           issue: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
 
@@ -128,7 +139,7 @@ jobs:
       # add [backlog] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: backlog
+          labels: ${{ env.BACKLOG_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Backlog board (from Triaging board)
@@ -158,7 +169,7 @@ jobs:
       # remove [sprint] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: sprint
+          labels: ${{ env.SPRINT_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Sprint board
@@ -221,7 +232,7 @@ jobs:
       # remove [backlog] label
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
-          labels: backlog
+          labels: ${{ env.BACKLOG_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Backlog board
@@ -234,7 +245,7 @@ jobs:
       # add [sprint] label
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
-          labels: sprint
+          labels: ${{ env.SPRINT_LBL }}
           number: ${{ needs.issue.outputs.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Sprint board
