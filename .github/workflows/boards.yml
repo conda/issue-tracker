@@ -21,18 +21,32 @@ jobs:
     outputs:
       number: >-
         ${{
-          steps.regex.outputs.replaced
+          steps.number.outputs.replaced
+          || github.event.issue.number
+        }}
+      id: >-
+        ${{
+          steps.id.outputs.replaced
           || github.event.issue.id
         }}
     runs-on: ubuntu-latest
     steps:
-      - name: regex
+      - name: url
         if: github.event_name == 'project_card'
         uses: frabert/replace-string-action@v2.0
         with:
-          pattern: .+/(\d+)
+          pattern: https://api.github.com(/.+)
           string: ${{ github.event.project_card.content_url }}
           replace-with: $1
+      - name: request
+        if: github.event_name == 'project_card'
+        uses: octokit/request-action@v2.1.0
+        with:
+          route: GET ${{ steps.url.outputs.replaced }}
+      - name: number
+        run: echo "::set-output number=${{ fromJSON(steps.request.outputs.data)['number'] }}"
+      - name: id
+        run: echo "::set-output id=${{ fromJSON(steps.request.outputs.data)['id'] }}"
 
   # (helper) whether issue is on Triaging/Sprint board
   project:
@@ -57,7 +71,7 @@ jobs:
         with:
           org: conda
           project: ${{ env.TRIAGING_ID }}
-          issue: ${{ needs.issue.outputs.number }}
+          issue: ${{ needs.issue.outputs.id }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       - name: on_sprint
         if: github.event_name == 'issues'
@@ -65,7 +79,7 @@ jobs:
         with:
           org: conda
           project: ${{ env.SPRINT_ID }}
-          issue: ${{ needs.issue.outputs.number }}
+          issue: ${{ needs.issue.outputs.id }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
 
   # new -> Triaging[New]
