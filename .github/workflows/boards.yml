@@ -19,16 +19,8 @@ jobs:
   # (helper) get issue number
   issue:
     outputs:
-      number: >-
-        ${{
-          steps.number.outputs.replaced
-          || github.event.issue.number
-        }}
-      id: >-
-        ${{
-          steps.id.outputs.replaced
-          || github.event.issue.id
-        }}
+      number: ${{ steps.number.outputs.number }}
+      id: ${{ steps.id.outputs.id }}
     runs-on: ubuntu-latest
     steps:
       - name: url
@@ -44,9 +36,9 @@ jobs:
         with:
           route: GET ${{ steps.url.outputs.replaced }}
       - name: number
-        run: echo "::set-output number=${{ fromJSON(steps.request.outputs.data)['number'] }}"
+        run: echo "::set-output number=${{ github.event.issue.number || fromJSON(steps.request.outputs.data)['number'] }}"
       - name: id
-        run: echo "::set-output id=${{ fromJSON(steps.request.outputs.data)['id'] }}"
+        run: echo "::set-output id=${{ github.event.issue.id || fromJSON(steps.request.outputs.data)['id'] }}"
 
   # (helper) whether issue is on Triaging/Sprint board
   project:
