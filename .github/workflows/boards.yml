@@ -1,9 +1,36 @@
 name: Automate Boards
 on:
   issues:
-    types: [opened, labeled, unlabeled]
-  project_card:
-    types: [created, deleted]
+    types: # [opened, labeled, unlabeled]
+      - opened
+      - edited
+      - deleted
+      - transferred
+      - pinned
+      - unpinned
+      - closed
+      - reopened
+      - assigned
+      - unassigned
+      - labeled
+      - unlabeled
+      - locked
+      - unlocked
+      - milestoned
+      - demilestoned
+    project:
+      - created
+      - updated
+      - closed
+      - reopened
+      - edited
+      - deleted
+    project_card: # [created, deleted]
+      - created
+      - moved
+      - converted to an issue
+      - edited
+      - deleted
 env:
   BACKLOG_LBL: backlog
   SPRINT_LBL: sprint
@@ -16,6 +43,12 @@ env:
   SPRINT_ID: 8
   SPRINT_URL: https://api.github.com/projects/13829490
 jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ${{ github.event_name }}
+      - run: echo ${{ github.event.action }}
+
   # (helper) get issue number
   issue:
     outputs:
