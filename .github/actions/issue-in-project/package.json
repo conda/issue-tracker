@@ -1,5 +1,5 @@
 {
-  "name": "project-has-issue",
+  "name": "issue-in-project",
   "version": "0.1.0",
   "description": "Detect whether an issue exists in the specified project.",
   "main": "lib/main.js",
