@@ -65,7 +65,7 @@ jobs:
       # (helper) access private GitHub Action
       - uses: actions/checkout@v2
       # (helper) detect if attached to triaging board
-      - name: on_triaging
+      - id: on_triaging
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
@@ -73,15 +73,15 @@ jobs:
           issue: ${{ github.event.issue.id }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # (helper) detect if attached to sprint board
-      - name: on_sprint
+      - id: on_sprint
         uses: ./.github/actions/project-has-issue
         with:
           org: conda
           project: ${{ env.SPRINT_ID }}
           issue: ${{ github.event.issue.id }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
-      - run: echo ${{ steps.on_triaging }}
-      - run: echo ${{ steps.on_sprint }}
+      - run: echo ${{ steps.on_triaging.outputs.contains }}
+      - run: echo ${{ steps.on_sprint.outputs.contains }}
       # (fail-safe) remove from Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
