@@ -140,10 +140,16 @@ function main_env() {
             user: user,
             repo: repo,
         });
-        if (!!result === result)
+        if (!!result === result) {
+            if (result)
+                (0, core_1.info)(`✅ issue (id: ${issue}) exists in project (number: ${project})`);
+            else
+                (0, core_1.info)(`❌ issue (id: ${issue}) does not exist in project (number: ${project})`);
             (0, core_1.setOutput)('contains', result);
-        else
+        }
+        else {
             (0, core_1.setOutput)('issues', result);
+        }
     });
 }
 if (process.argv.length > 2)

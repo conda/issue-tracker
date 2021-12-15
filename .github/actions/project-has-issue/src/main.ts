@@ -179,8 +179,17 @@ async function main_env(): Promise<void> {
     user: user,
     repo: repo,
   })
-  if (!!result === result) setOutput('contains', result)
-  else setOutput('issues', result)
+  if (!!result === result) {
+    if (result)
+      info(`✅ issue (id: ${issue}) exists in project (number: ${project})`)
+    else
+      info(
+        `❌ issue (id: ${issue}) does not exist in project (number: ${project})`,
+      )
+    setOutput('contains', result)
+  } else {
+    setOutput('issues', result)
+  }
 }
 
 // run as CLI tool or GitHub Action
