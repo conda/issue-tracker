@@ -9,7 +9,7 @@
     "build": "tsc && ncc build",
     "rebuild": "npm run clean && npm run build",
     "dist": "npm run build && node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/index.js",
-    "dist:re": "npm run clean && npm run dist",
+    "dist:re": "npm run clean && npm run dist --",
     "dev": "ts-node -r tsconfig-paths/register ./src/main.ts",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",

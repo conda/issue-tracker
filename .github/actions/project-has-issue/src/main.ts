@@ -180,14 +180,13 @@ async function main_env(): Promise<void> {
     repo: repo,
   })
   if (!!result === result) {
-    if (result)
-      info(`✅ issue (id: ${issue}) exists in project (number: ${project})`)
-    else
-      info(
-        `❌ issue (id: ${issue}) does not exist in project (number: ${project})`,
-      )
+    const icon = result ? '✅' : '❌'
+    const verb = result ? 'exists' : 'does not exist'
+    info(`${icon} issue (id: ${issue}) ${verb} in project (number: ${project})`)
     setOutput('contains', result)
   } else {
+    const number = Object.keys(result).length
+    info(`#️⃣  ${number} issues in project (number: ${project})`)
     setOutput('issues', result)
   }
 }

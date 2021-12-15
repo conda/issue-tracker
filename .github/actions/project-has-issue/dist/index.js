@@ -141,13 +141,14 @@ function main_env() {
             repo: repo,
         });
         if (!!result === result) {
-            if (result)
-                (0, core_1.info)(`✅ issue (id: ${issue}) exists in project (number: ${project})`);
-            else
-                (0, core_1.info)(`❌ issue (id: ${issue}) does not exist in project (number: ${project})`);
+            const icon = result ? '✅' : '❌';
+            const verb = result ? 'exists' : 'does not exist';
+            (0, core_1.info)(`${icon} issue (id: ${issue}) ${verb} in project (number: ${project})`);
             (0, core_1.setOutput)('contains', result);
         }
         else {
+            const number = Object.keys(result).length;
+            (0, core_1.info)(`#️⃣  ${number} issues in project (number: ${project})`);
             (0, core_1.setOutput)('issues', result);
         }
     });
