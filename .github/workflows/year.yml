@@ -6,6 +6,8 @@ on:
     - cron: 10 6 * * *
 jobs:
   year:
+    if: >-
+      !github.event.repository.fork
     runs-on: ubuntu-latest
     steps:
       # setup
