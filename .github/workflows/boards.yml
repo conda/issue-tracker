@@ -80,8 +80,8 @@ jobs:
           project: ${{ env.SPRINT_ID }}
           issue: ${{ github.event.issue.id }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
-      - run: echo ${{ steps.on_triaging.outputs }}
-      - run: echo ${{ steps.on_sprint.outputs }}
+      - run: echo ${{ steps.on_triaging }}
+      - run: echo ${{ steps.on_sprint }}
       # (fail-safe) remove from Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
