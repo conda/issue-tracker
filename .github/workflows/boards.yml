@@ -1,36 +1,7 @@
 name: Automate Boards
 on:
   issues:
-    types: # [opened, labeled, unlabeled]
-      - opened
-      - edited
-      - deleted
-      - transferred
-      - pinned
-      - unpinned
-      - closed
-      - reopened
-      - assigned
-      - unassigned
-      - labeled
-      - unlabeled
-      - locked
-      - unlocked
-      - milestoned
-      - demilestoned
-    project:
-      - created
-      - updated
-      - closed
-      - reopened
-      - edited
-      - deleted
-    project_card: # [created, deleted]
-      - created
-      - moved
-      - converted to an issue
-      - edited
-      - deleted
+    types: [opened, labeled, unlabeled]
 env:
   BACKLOG_LBL: backlog
   SPRINT_LBL: sprint
@@ -43,70 +14,6 @@ env:
   SPRINT_ID: 8
   SPRINT_URL: https://api.github.com/projects/13829490
 jobs:
-  print:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo ${{ github.event_name }}
-      - run: echo ${{ github.event.action }}
-
-  # (helper) get issue number
-  issue:
-    outputs:
-      number: ${{ steps.number.outputs.number }}
-      id: ${{ steps.id.outputs.id }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: url
-        if: github.event_name == 'project_card'
-        uses: frabert/replace-string-action@v2.0
-        with:
-          pattern: https://api.github.com(/.+)
-          string: ${{ github.event.project_card.content_url }}
-          replace-with: $1
-      - name: request
-        if: github.event_name == 'project_card'
-        uses: octokit/request-action@v2.1.0
-        with:
-          route: GET ${{ steps.url.outputs.replaced }}
-      - name: number
-        run: echo "::set-output number=${{ github.event.issue.number || fromJSON(steps.request.outputs.data)['number'] }}"
-      - name: id
-        run: echo "::set-output id=${{ github.event.issue.id || fromJSON(steps.request.outputs.data)['id'] }}"
-
-  # (helper) whether issue is on Triaging/Sprint board
-  project:
-    needs: issue
-    outputs:
-      on_triaging: >-
-        ${{
-          steps.on_triaging.outputs.contains
-          || github.event.project_card.project_url == env.TRIAGING_URL
-        }}
-      on_sprint: >-
-        ${{
-          steps.on_sprint.outputs.contains
-          || github.event.project_card.project_url == env.SPRINT_URL
-        }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: on_triaging
-        if: github.event_name == 'issues'
-        uses: ./.github/actions/project-has-issue
-        with:
-          org: conda
-          project: ${{ env.TRIAGING_ID }}
-          issue: ${{ needs.issue.outputs.id }}
-          github_token: ${{ secrets.PROJECT_TOKEN }}
-      - name: on_sprint
-        if: github.event_name == 'issues'
-        uses: ./.github/actions/project-has-issue
-        with:
-          org: conda
-          project: ${{ env.SPRINT_ID }}
-          issue: ${{ needs.issue.outputs.id }}
-          github_token: ${{ secrets.PROJECT_TOKEN }}
-
   # new -> Triaging[New]
   to_triaging:
     # if new issue and not [backlog] or [sprint]
@@ -148,28 +55,31 @@ jobs:
           && github.event.label.name == 'backlog'
         )
         || (
-          github.event_name == 'project_card'
-          && github.event.action == 'created'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
-          && !github.event.project_card.note
-          && github.event.project_card.content_url
-        )
-        || (
           github.event_name == 'issues'
           && github.event.action == 'unlabeled'
           && github.event.label.name == 'sprint'
         )
-        || (
-          github.event_name == 'project_card'
-          && github.event.action == 'deleted'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
-          && !github.event.project_card.note
-          && github.event.project_card.content_url
-        )
       )
-    needs: [issue, project]
     runs-on: ubuntu-latest
     steps:
+      # (helper) access private GitHub Action
+      - uses: actions/checkout@v2
+      # (helper) detect if attached to triaging board
+      - name: on_triaging
+        uses: ./.github/actions/project-has-issue
+        with:
+          org: conda
+          project: ${{ env.TRIAGING_ID }}
+          issue: ${{ github.event.issue.id }}
+          github_token: ${{ secrets.PROJECT_TOKEN }}
+      # (helper) detect if attached to sprint board
+      - name: on_sprint
+        uses: ./.github/actions/project-has-issue
+        with:
+          org: conda
+          project: ${{ env.SPRINT_ID }}
+          issue: ${{ github.event.issue.id }}
+          github_token: ${{ secrets.PROJECT_TOKEN }}
       # (fail-safe) remove from Triaging board
       - uses: alex-page/github-project-automation-plus@v0.8.1
         with:
@@ -181,15 +91,14 @@ jobs:
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
           labels: ${{ env.BACKLOG_LBL }}
-          number: ${{ needs.issue.outputs.number }}
+          number: ${{ github.event.issue.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Backlog board (from Triaging board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
-          fromJSON(needs.project.outputs.on_triaging) || (
-            !contains(github.event.issue.labels.*.name, 'sprint')
-            && !fromJSON(needs.project.outputs.on_sprint)
-          )
+          fromJSON(steps.on_triaging.outputs.contains)
+          && !contains(github.event.issue.labels.*.name, 'sprint')
+          && !fromJSON(steps.on_sprint.outputs.contains)
         with:
           action: add # if not present
           project: Backlog
@@ -198,10 +107,9 @@ jobs:
       # add to Backlog board (from Sprint board)
       - uses: alex-page/github-project-automation-plus@v0.8.1
         if: >-
-          !fromJSON(needs.project.outputs.on_triaging) && (
-            contains(github.event.issue.labels.*.name, 'sprint')
-            || fromJSON(needs.project.outputs.on_sprint)
-          )
+          !fromJSON(steps.on_triaging.outputs.contains)
+          || contains(github.event.issue.labels.*.name, 'sprint')
+          || fromJSON(steps.on_sprint.outputs.contains)
         with:
           action: add # if not present
           project: Backlog
@@ -211,7 +119,7 @@ jobs:
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
           labels: ${{ env.SPRINT_LBL }}
-          number: ${{ needs.issue.outputs.number }}
+          number: ${{ github.event.issue.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Sprint board
       - uses: alex-page/github-project-automation-plus@v0.8.1
@@ -242,26 +150,11 @@ jobs:
           && github.event.label.name == 'backlog'
         )
         || (
-          github.event_name == 'project_card'
-          && github.event.action == 'deleted'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13697370'
-          && !github.event.project_card.note
-          && github.event.project_card.content_url
-        )
-        || (
           github.event_name == 'issues'
           && github.event.action == 'labeled'
           && github.event.label.name == 'sprint'
         )
-        || (
-          github.event_name == 'project_card'
-          && github.event.action == 'created'
-          && github.event.project_card.project_url == 'https://api.github.com/projects/13829490'
-          && !github.event.project_card.note
-          && github.event.project_card.content_url
-        )
       )
-    needs: issue
     runs-on: ubuntu-latest
     steps:
       # (fail-safe) remove from Triaging board
@@ -275,7 +168,7 @@ jobs:
       - uses: actions-ecosystem/action-remove-labels@v1.3.0
         with:
           labels: ${{ env.BACKLOG_LBL }}
-          number: ${{ needs.issue.outputs.number }}
+          number: ${{ github.event.issue.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # remove from Backlog board
       - uses: alex-page/github-project-automation-plus@v0.8.1
@@ -288,7 +181,7 @@ jobs:
       - uses: actions-ecosystem/action-add-labels@v1.1.0
         with:
           labels: ${{ env.SPRINT_LBL }}
-          number: ${{ needs.issue.outputs.number }}
+          number: ${{ github.event.issue.number }}
           github_token: ${{ secrets.PROJECT_TOKEN }}
       # add to Sprint board
       - uses: alex-page/github-project-automation-plus@v0.8.1
