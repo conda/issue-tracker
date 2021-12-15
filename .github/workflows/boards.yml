@@ -18,7 +18,8 @@ jobs:
   to_triaging:
     # if new issue and not [backlog] or [sprint]
     if: >-
-      github.event.sender.login != 'conda-bot'
+      !github.event.repository.fork
+      && github.event.sender.login != 'conda-bot'
       && github.event_name == 'issues'
       && github.event.action == 'opened'
       && !contains(github.event.issue.labels.*.name, 'backlog')
@@ -43,7 +44,8 @@ jobs:
     # if unlabeled [sprint]
     # if removed from Sprint board
     if: >-
-      github.event.sender.login != 'conda-bot'
+      !github.event.repository.fork
+      && github.event.sender.login != 'conda-bot'
       && github.event.issue.state == 'open'
       && (
         (
@@ -141,7 +143,8 @@ jobs:
     # if labeled [sprint]
     # if added to Sprint board
     if: >-
-      github.event.sender.login != 'conda-bot'
+      !github.event.repository.fork
+      && github.event.sender.login != 'conda-bot'
       && github.event.issue.state == 'open'
       && (
         (
