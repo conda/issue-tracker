@@ -35,7 +35,7 @@ repos:
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.2
+    rev: 1.7.4
     hooks:
       - id: bandit
         args: [--exit-zero]
