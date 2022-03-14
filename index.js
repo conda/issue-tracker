@@ -35,11 +35,11 @@ async function setRepo(path) {
     // update diff of recent changes
     setDiff(path, recent);
 
-    // recent chart
-    generateChart("hourChart", path, recent, "day");
+    // // recent chart
+    // generateChart("hourChart", path, recent, "day");
 
-    // month chart
-    generateChart("monthChart", path, month, "day");
+    // // month chart
+    // generateChart("monthChart", path, month, "day");
 
     // year chart
     generateChart("yearChart", path, year, "month");
