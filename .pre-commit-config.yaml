@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       # standard end of line/end of file cleanup
       - id: mixed-line-ending
@@ -29,7 +29,7 @@ repos:
       - id: flake8
         types_or: [python]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.13.4
+    rev: v2.13.5
     hooks:
       - id: pylint
         args: [--exit-zero]
