@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v4.3.0
     hooks:
       # standard end of line/end of file cleanup
       - id: mixed-line-ending
@@ -29,7 +29,7 @@ repos:
       - id: flake8
         types_or: [python]
   - repo: https://github.com/PyCQA/pylint
-    rev: v2.14.0-b1
+    rev: v2.14.3
     hooks:
       - id: pylint
         args: [--exit-zero]
@@ -41,7 +41,7 @@ repos:
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.6.2
+    rev: v2.7.1
     hooks:
       - id: prettier
         types_or: [ts]
