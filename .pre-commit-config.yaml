@@ -24,7 +24,7 @@ repos:
         additional_dependencies: [black==21.11b1]
         types_or: [python]
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.2
     hooks:
       - id: flake8
         types_or: [python]
