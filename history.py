@@ -329,6 +329,6 @@ if __name__ == "__main__":
 
     h.write_repos()
     h.write_snapshots("recent", rate=1, trim=72)  # every hour, keep 3 days worth
-    h.write_snapshots("month", rate=3, trim=248)  # every 3 hours, keep 31 days worth
+    # h.write_snapshots("month", rate=3, trim=248)  # every 3 hours, keep 31 days worth
     h.write_snapshots("year", rate=24, trim=366)  # every day, keep 366 days worth
     h.write_snapshots("alltime", rate=72)  # every 3 days, keep everything

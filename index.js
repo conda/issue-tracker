@@ -1,6 +1,6 @@
 import {repos} from "./snapshots/repos.js";
 const {default: recent} = await import("./snapshots/recent.js");
-const {default: month} = await import("./snapshots/month.js");
+// const {default: month} = await import("./snapshots/month.js");
 const {default: year} = await import("./snapshots/year.js");
 const {default: alltime} = await import("./snapshots/alltime.js");
 
@@ -35,10 +35,10 @@ async function setRepo(path) {
     // update diff of recent changes
     setDiff(path, recent);
 
-    // // recent chart
+    // recent chart
     // generateChart("hourChart", path, recent, "day");
 
-    // // month chart
+    // month chart
     // generateChart("monthChart", path, month, "day");
 
     // year chart
