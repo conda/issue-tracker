@@ -24,3 +24,6 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Hourly snapshot
+          commit_user_name: Conda Bot
+          commit_user_email: 18747875+conda-bot@users.noreply.github.com
+          commit_author: Conda Bot <18747875+conda-bot@users.noreply.github.com>
