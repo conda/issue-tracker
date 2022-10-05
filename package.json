@@ -11,7 +11,7 @@
     "url": "git+https://github.com/conda/issue-tracker.git"
   },
   "keywords": [],
-  "author": "kenodegard",
+  "author": "conda",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/conda/issue-tracker/issues"
@@ -20,7 +20,7 @@
   "type": "module",
   "dependencies": {
     "@actions/core": "^1.6.0",
-    "http-server": "^14.0.0",
+    "http-server": "^14.1.1",
     "luxon": "^2.1.1",
     "node-fetch": "^2.6.6"
   }
