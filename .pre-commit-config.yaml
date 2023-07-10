@@ -18,7 +18,7 @@ repos:
       - id: black
         types_or: [python]
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.14.0
+    rev: 1.15.0
     hooks:
       - id: blacken-docs
         additional_dependencies: [black]
@@ -41,7 +41,7 @@ repos:
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.9-for-vscode
+    rev: v3.0.0
     hooks:
       - id: prettier
         types_or: [ts]
