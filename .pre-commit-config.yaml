@@ -18,7 +18,7 @@ repos:
       - id: black
         types_or: [python]
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.15.0
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
         additional_dependencies: [black]
@@ -29,7 +29,7 @@ repos:
       - id: flake8
         types_or: [python]
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a6
+    rev: v3.0.0a7
     hooks:
       - id: pylint
         args: [--exit-zero]
@@ -41,7 +41,7 @@ repos:
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.1
+    rev: v3.0.2
     hooks:
       - id: prettier
         types_or: [ts]
