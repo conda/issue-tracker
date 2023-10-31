@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       # standard end of line/end of file cleanup
       - id: mixed-line-ending
@@ -13,7 +13,7 @@ repos:
       # catch git merge/rebase problems
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.1
     hooks:
       - id: black
         types_or: [python]
@@ -29,7 +29,7 @@ repos:
       - id: flake8
         types_or: [python]
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.0a7
+    rev: v3.0.1
     hooks:
       - id: pylint
         args: [--exit-zero]
