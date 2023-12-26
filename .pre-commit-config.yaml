@@ -13,7 +13,7 @@ repos:
       # catch git merge/rebase problems
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: 23.12.0
+    rev: 23.12.1
     hooks:
       - id: black
         types_or: [python]
@@ -41,7 +41,7 @@ repos:
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.7
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         types_or: [ts]
