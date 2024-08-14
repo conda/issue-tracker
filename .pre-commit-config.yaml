@@ -13,7 +13,7 @@ repos:
       # catch git merge/rebase problems
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
         types_or: [python]
@@ -24,7 +24,7 @@ repos:
         additional_dependencies: [black]
         types_or: [python]
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.0
+    rev: 7.1.1
     hooks:
       - id: flake8
         types_or: [python]
