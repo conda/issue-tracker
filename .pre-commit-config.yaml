@@ -29,13 +29,13 @@ repos:
       - id: flake8
         types_or: [python]
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.2.7
+    rev: v3.3.1
     hooks:
       - id: pylint
         args: [--exit-zero]
         types_or: [python]
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.9
+    rev: 1.7.10
     hooks:
       - id: bandit
         args: [--exit-zero]
