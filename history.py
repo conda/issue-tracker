@@ -6,6 +6,7 @@ Generating the history using the GitHub API.
 Normally this should not be used. This is ideally only used to generate the initial
 historical data points for repos that have not been previously tracked.
 """
+
 import argparse
 import json
 import time
